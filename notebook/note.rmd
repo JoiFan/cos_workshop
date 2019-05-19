@@ -1,0 +1,68 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+# 0 packages
+```{r}
+library(tidyverse)
+library(here)
+
+here("data","sub01.log") 
+```
+here使根目录不需一样
+
+# 读取数据
+```{r}
+var=here("data","sub01.log")
+readLines(var) %>% 
+ str_detect("RT") %>% 
+ which()-> table2_start
+
+readLines(here("data","sub01.log")) %>% 
+  str_detect("Subject") %>% 
+  which()->table1_start
+
+table1_end <- table2_start - 2
+table2_end <-length(readLines(var))
+
+raw_text <- readLines(var)
+
+writeLines(raw_text[table1_start:table1_end],here("output","table1.txt"))
+
+```
+
+# 写函数
+```{r}
+convert_logfile <- function(filename,output_name){
+var=here("data",filename)
+readLines(var) %>% 
+ str_detect("RT") %>% 
+ which()->tabel2_start
+
+readLines(var) %>% 
+  str_detect("Subject") %>% 
+  which()->tabel1_start
+
+table1_end <- table2_start - 2
+table2_end <-length(readLines(var))
+
+raw_text <- readLines(var)
+
+writeLines(raw_text[table1_start:table1_end],here("output",output_name))
+}
+```
+
+# 写循环
+```{r}
+convert_logfile("sub02.log","sub02_table1.txt")
+
+
+subs <-c("sub01","sub02")
+for (i in subs) {
+  filename <- paste0(i,",log")
+  output_name <- paste0(i,"_table_new.txt")
+  convert_logfile(filename,output_name)
+  
+}
+```
+
